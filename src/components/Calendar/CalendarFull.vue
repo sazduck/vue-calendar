@@ -9,11 +9,14 @@ const { year } = defineProps<{
   year: number;
 }>();
 
-const fillCalendarByYear = (year: number): Map<string, 0 | 8 | 7> => {
+type Hours = 0 | 8 | 7;
+
+const fillCalendarByYear = (year: number): Map<string, Hours> => {
   const date = new Date(`${year}-01-01`);
   console.log(date.toISOString());
 
-  const datesMap = new Map<string, 0 | 8 | 7>();
+
+  const datesMap = new Map<string, Hours>();
 
   for (let i = 0; i < 365; i++) {
     const day = date.getDay();
@@ -66,6 +69,7 @@ const getCalendarData = (hourRows: DayHours[]) => {
     ),
   };
 };
+
 const calendarData = getCalendarData(calendar);
 
 if (!calendarData) {
@@ -74,6 +78,7 @@ if (!calendarData) {
 
 const today = new Date();
 today.setHours(0, 0, 0, 0);
+
 </script>
 
 <template>
@@ -84,7 +89,7 @@ today.setHours(0, 0, 0, 0);
         <div class="flex flex-wrap gap-4 justify-center items-start">
           <CalendarMonth
             v-for="month in calendarData.months"
-            :key="`month${month.month}`"
+            :key="month.month"
             :month="month"
             :year="year"
             :today="today"

@@ -128,7 +128,7 @@ const getDayClass = (day: { day: number; hours: number }) =>
         <td
           v-for="(dayOfWeek, dayIdx) in getWeekdays(locale)"
           :key="dayIdx"
-          class="border-1 border-transparent px-1 py-0.5 text-gray-500"
+          class="border border-transparent px-1 py-0.5 text-gray-500"
         >
           {{ dayOfWeek }}
         </td>
