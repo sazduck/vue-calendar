@@ -2,30 +2,29 @@
 
 import CalendarMonth from './CalendarMonth.vue';
 import type { DayHours } from './types';
-import Year from './CalendarYear.vue';
-import workdayData from "@/data/calendar-data/2025.json"
+import CalendarYear from './CalendarYear.vue';
 
-const { year } = defineProps<{
+import type { CalendarData } from '@/data/calendar-data/types';
+
+const { year, workDays } = defineProps<{
   year: number;
+  workDays?: CalendarData;
 }>();
 
 type Hours = 0 | 8 | 7;
 
 const fillCalendarByYear = (year: number): Map<string, Hours> => {
-  const date = new Date(`${year}-01-01`);
-  console.log(date.toISOString());
 
 
   const datesMap = new Map<string, Hours>();
 
-  for (let i = 0; i < 365; i++) {
-    const day = date.getDay();
+  for (let date = new Date(`${year}-01-01`); date.getFullYear() < year + 1; date.setDate(date.getDate() + 1)) {
+   const day = date.getDay();
     if (day === 0 || day === 6) {
       datesMap.set(date.toISOString().slice(0, 10), 0);
     } else {
       datesMap.set(date.toISOString().slice(0, 10), 8);
     }
-    date.setDate(date.getDate() + 1);
   }
   return datesMap;
 };
@@ -33,13 +32,13 @@ const fillCalendarByYear = (year: number): Map<string, Hours> => {
 const datesMap = fillCalendarByYear(year);
 
 
-workdayData.extraWorkdays.forEach((d: string) => {
+workDays?.extraWorkdays.forEach((d: string) => {
   datesMap.set(d, 8);
 });
-workdayData.holidays.forEach((d: string) => {
+workDays?.holidays.forEach((d: string) => {
   datesMap.set(d, 0);
 });
-workdayData.preholidays.forEach((d: string) => {
+workDays?.preholidays.forEach((d: string) => {
   datesMap.set(d, 7);
 });
 
@@ -85,7 +84,7 @@ today.setHours(0, 0, 0, 0);
   <div class="flex flex-col items-center flex-1">
     <div class="flex flex-1 flex-wrap max-w-5xl justify-center items-center">
       <div class="flex flex-col">
-        <Year :year="year" />
+        <CalendarYear :year="year" />
         <div class="flex flex-wrap gap-4 justify-center items-start">
           <CalendarMonth
             v-for="month in calendarData.months"

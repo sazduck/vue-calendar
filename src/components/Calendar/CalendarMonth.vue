@@ -71,35 +71,40 @@ const getIsDayPassed = (year: number, month: number, day: number) => {
   return today > new Date(year, month, day);
 };
 
-const getMonthColor = (month: number) =>
-  month <= 2 || month == 12 ? 'bg-blue-100'
-  : month <= 5 ? 'bg-green-200'
-  : month <= 8 ? 'bg-yellow-200'
-  : 'bg-orange-200';
+const getMonthColor = (month: number) => {
+  if (month <= 2 || month === 12) return 'bg-blue-100';
+  if (month <= 5) return 'bg-green-200';
+  if (month <= 8) return 'bg-yellow-200';
+  return 'bg-orange-200';
+};
 
 const getDayColor = (day: { day: number; hours: number }) => {
   const isDayPassed = getIsDayPassed(year, month.month - 1, day.day);
-  return (
-    day.hours === 8 ?
-      isDayPassed ? 'text-gray-400'
-      : 'text-gray-900'
-    : day.hours === 7 ?
-      isDayPassed ? 'text-green-300'
-      : 'text-green-600'
-    : isDayPassed ? 'text-red-300'
-    : 'text-red-600'
-  );
+
+  // Маппинг цветов в зависимости от часов
+  const colorMap: Record<number, [string, string]> = {
+    8: ['text-gray-400', 'text-gray-900'], // [если прошло, если активно]
+    7: ['text-green-300', 'text-green-600'],
+  };
+
+  const [passedColor, activeColor] = colorMap[day.hours] || ['text-red-300', 'text-red-600'];
+  return isDayPassed ? passedColor : activeColor;
 };
-const getDayClass = (day: { day: number; hours: number }) =>
-  `border-1 px-2 py-0.5 ${day ? getDayColor(day) : ''} ${
-    (
-      today.getFullYear() === year &&
-      today.getMonth() === month.month - 1 &&
-      today.getDate() === day?.day
-    ) ?
-      'border-red-700'
-    : 'border-transparent'
-  }`;
+
+const getDayClass = (day: { day: number; hours: number }) => {
+  const baseClasses = 'border-1 px-2 py-0.5';
+  const colorClass = day ? getDayColor(day) : '';
+
+  // Проверяем, является ли день сегодняшним
+  const isToday = (
+    today.getFullYear() === year &&
+    today.getMonth() === month.month - 1 &&
+    today.getDate() === day?.day
+  );
+  const borderClass = isToday ? 'border-red-700' : 'border-transparent';
+
+  return `${baseClasses} ${colorClass} ${borderClass}`;
+};
 </script>
 
 <template>
@@ -117,7 +122,7 @@ const getDayClass = (day: { day: number; hours: number }) =>
             <span>
               {{ fmtMonth(new Date(year, month.month - 1)) }}
             </span>
-            <span>{{ month.hours }}</span>
+            <span>{{ month.hours }}/{{ Math.trunc(month.hours / 8) }}</span>
           </div>
         </th>
       </tr>
