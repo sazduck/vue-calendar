@@ -24,7 +24,7 @@ const minYear = years[0] || 0;
       <button
         :to="'/' + (year - 1)"
         @click="goToYear(year - 1)"
-        :class="`min-h-10 min-w-10 rounded-full bg-neutral-50/30 text-lg font-black text-neutral-600 shadow-sm shadow-neutral-800 backdrop-blur-lg ${year - 1 <= minYear ? 'pointer-events-none' : 'cursor-pointer'}`"
+        :class="`min-h-10 min-w-10 rounded-full bg-neutral-50/30 text-lg font-black text-neutral-600 shadow-sm shadow-neutral-800 backdrop-blur-lg ${year - 1 < minYear ? 'pointer-events-none' : 'cursor-pointer'}`"
       >
         <
       </button>
@@ -36,7 +36,7 @@ const minYear = years[0] || 0;
       <button
         :to="'/' + (year + 1)"
         @click="goToYear(year + 1)"
-        :class="`min-h-10 min-w-10 rounded-full bg-neutral-50/30 text-lg font-black text-neutral-600 shadow-sm shadow-neutral-800 backdrop-blur-lg ${year + 1 >= (maxYear || 0) ? 'pointer-events-none' : 'cursor-pointer'}`"
+        :class="`min-h-10 min-w-10 rounded-full bg-neutral-50/30 text-lg font-black text-neutral-600 shadow-sm shadow-neutral-800 backdrop-blur-lg ${year + 1 > (maxYear || 0) ? 'pointer-events-none' : 'cursor-pointer'}`"
       >
         >
       </button>

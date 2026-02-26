@@ -15,7 +15,7 @@ interface CalendarDataProcessed {
   months: MonthData[];
 }
 
-const LOCALE = 'en-US' as const;
+const LOCALE = 'ru-RU' as const;
 
 const { year, calendarData } = defineProps<{
   year: number;
