@@ -1,98 +1,48 @@
 <script setup lang="ts">
-
 import CalendarMonth from './CalendarMonth.vue';
-import type { DayHours } from './types';
-import CalendarYear from './CalendarYear.vue';
 
-import type { CalendarData } from '@/data/calendar-data/types';
+interface MonthData {
+  month: number;
+  hours: number;
+  days: {
+    day: number;
+    hours: number;
+  }[];
+}
 
-const { year, workDays } = defineProps<{
+interface CalendarDataProcessed {
   year: number;
-  workDays?: CalendarData;
+  months: MonthData[];
+}
+
+const LOCALE = 'en-US' as const;
+
+const { year, calendarData } = defineProps<{
+  year: number;
+  calendarData: CalendarDataProcessed;
 }>();
-
-type Hours = 0 | 8 | 7;
-
-const fillCalendarByYear = (year: number): Map<string, Hours> => {
-
-
-  const datesMap = new Map<string, Hours>();
-
-  for (let date = new Date(`${year}-01-01`); date.getFullYear() < year + 1; date.setDate(date.getDate() + 1)) {
-   const day = date.getDay();
-    if (day === 0 || day === 6) {
-      datesMap.set(date.toISOString().slice(0, 10), 0);
-    } else {
-      datesMap.set(date.toISOString().slice(0, 10), 8);
-    }
-  }
-  return datesMap;
-};
-
-const datesMap = fillCalendarByYear(year);
-
-
-workDays?.extraWorkdays.forEach((d: string) => {
-  datesMap.set(d, 8);
-});
-workDays?.holidays.forEach((d: string) => {
-  datesMap.set(d, 0);
-});
-workDays?.preholidays.forEach((d: string) => {
-  datesMap.set(d, 7);
-});
-
-const calendar: { date: string; hours: number }[] = [];
-
-for (const [k, v] of datesMap) {
-  calendar.push({ date: k, hours: v });
-}
-
-calendar.sort((a, b) => a.date.localeCompare(b.date));
-
-const getCalendarData = (hourRows: DayHours[]) => {
-  return {
-    year,
-    months: [...new Set(hourRows.map(row => row.date.slice(5, 7)))].map(
-      month => {
-        const months = hourRows.filter(row => row.date.slice(5, 7) === month);
-        return {
-          month: Number(month),
-          hours: months.reduce((totalHours, row) => totalHours + row.hours, 0),
-          days: months.map(row => ({
-            day: Number(row.date.slice(8, 10)),
-            hours: row.hours,
-          })),
-        };
-      }
-    ),
-  };
-};
-
-const calendarData = getCalendarData(calendar);
-
-if (!calendarData) {
-  throw new Error('Invalid calendar data');
-}
 
 const today = new Date();
 today.setHours(0, 0, 0, 0);
-
 </script>
 
 <template>
-  <div class="flex flex-col items-center flex-1">
-    <div class="flex flex-1 flex-wrap max-w-5xl justify-center items-center">
+  <div class="flex flex-1 flex-col items-center pb-72 lg:pb-0">
+    <div class="flex max-w-5xl flex-1 flex-wrap items-center justify-center">
       <div class="flex flex-col">
-        <CalendarYear :year="year" />
-        <div class="flex flex-wrap gap-4 justify-center items-start">
+        <div
+          class="fixed flex w-full items-center justify-center bg-neutral-100/30 py-2 text-4xl font-semibold text-neutral-950 backdrop-blur-lg lg:hidden"
+        >
+          {{ year }}
+        </div>
+        <div class="mx-2 mt-16 flex flex-wrap items-start justify-center gap-3">
           <CalendarMonth
             v-for="month in calendarData.months"
             :key="month.month"
             :month="month"
             :year="year"
             :today="today"
-            locale="ru-RU"
+            :locale="LOCALE"
           />
         </div>
       </div>

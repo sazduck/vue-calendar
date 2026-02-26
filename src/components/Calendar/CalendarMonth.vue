@@ -1,43 +1,34 @@
 <script setup lang="ts">
 import type { WorkingMonthHours } from './types';
 
+interface Day {
+  day: number;
+  hours: number;
+}
+
 interface CalendarMonthProps {
   month: WorkingMonthHours;
   year: number;
   today: Date;
   locale?: string;
 }
-const {
-  year,
-  month,
-  locale = 'ru-RU',
-  today,
-} = defineProps<CalendarMonthProps>();
+const props = withDefaults(defineProps<CalendarMonthProps>(), {
+  locale: 'ru-RU',
+});
 
 const getFirstDayOfMonth = (year: number, month: number): number => {
   const day = new Date(year, month - 1, 1).getDay();
   return (day + 6) % 7;
 };
 
-const getWeekdays = (locale: string) => {
-  const date = new Date(1970, 0, 5); // monday
-  const weekDayFmtRu = Intl.DateTimeFormat(locale, { weekday: 'short' });
-  const weekdays = [];
-  for (let i = 0; i < 7; i++) {
-    weekdays.push(weekDayFmtRu.format(date));
-    date.setDate(date.getDate() + 1);
-  }
-  return weekdays;
-};
-
 const chunkDays = (
   year: number,
   month: number,
-  monthDays: { day: number; hours: number }[]
-): (null | { day: number; hours: number })[][] => {
+  monthDays: Day[]
+): (Day | null)[][] => {
   const firstDayOffset = getFirstDayOfMonth(year, month);
 
-  const weeks: (null | { day: number; hours: number })[][] = [];
+  const weeks: (Day | null)[][] = [];
   const paddedDays = [...Array(firstDayOffset).fill(null), ...monthDays];
 
   const fullWeeksLengh = Math.ceil(paddedDays.length / 7) * 7;
@@ -55,20 +46,8 @@ const chunkDays = (
   return weeks;
 };
 
-const weeks = chunkDays(year, month.month, month.days);
-
 const capitalizeFirstLetter = (str: string): string => {
   return str.charAt(0).toUpperCase() + str.slice(1);
-};
-
-const fmtMonth = (date: Date) => {
-  return capitalizeFirstLetter(
-    Intl.DateTimeFormat(locale, { month: 'long' }).format(date)
-  );
-};
-
-const getIsDayPassed = (year: number, month: number, day: number) => {
-  return today > new Date(year, month, day);
 };
 
 const getMonthColor = (month: number) => {
@@ -78,51 +57,75 @@ const getMonthColor = (month: number) => {
   return 'bg-orange-200';
 };
 
-const getDayColor = (day: { day: number; hours: number }) => {
-  const isDayPassed = getIsDayPassed(year, month.month - 1, day.day);
-
+const getDayClass = (day: Day | null) => {
+  if (day === null) {
+    return '';
+  }
   // Маппинг цветов в зависимости от часов
   const colorMap: Record<number, [string, string]> = {
     8: ['text-gray-400', 'text-gray-900'], // [если прошло, если активно]
     7: ['text-green-300', 'text-green-600'],
   };
 
-  const [passedColor, activeColor] = colorMap[day.hours] || ['text-red-300', 'text-red-600'];
-  return isDayPassed ? passedColor : activeColor;
-};
+  const [passedColor, activeColor] = colorMap[day.hours] || [
+    'text-red-300',
+    'text-red-600',
+  ];
+  const isDayPassed =
+    props.today > new Date(props.year, props.month.month - 1, day.day);
 
-const getDayClass = (day: { day: number; hours: number }) => {
+  const isToday =
+    props.today.getFullYear() === props.year &&
+    props.today.getMonth() === props.month.month - 1 &&
+    props.today.getDate() === day?.day;
+
+  const dayColor = isDayPassed ? passedColor : activeColor;
+
   const baseClasses = 'border-1 px-2 py-0.5';
-  const colorClass = day ? getDayColor(day) : '';
-
-  // Проверяем, является ли день сегодняшним
-  const isToday = (
-    today.getFullYear() === year &&
-    today.getMonth() === month.month - 1 &&
-    today.getDate() === day?.day
-  );
+  const colorClass = day ? dayColor : '';
   const borderClass = isToday ? 'border-red-700' : 'border-transparent';
 
   return `${baseClasses} ${colorClass} ${borderClass}`;
 };
+
+const fmtMonth = (date: Date) => {
+  return capitalizeFirstLetter(
+    Intl.DateTimeFormat(props.locale, { month: 'long' }).format(date)
+  );
+};
+
+const getWeekdays = (locale: string) => {
+  const date = new Date(1970, 0, 5); // monday
+  const weekDayFmtRu = Intl.DateTimeFormat(locale, { weekday: 'short' });
+  const weekdays = [];
+  for (let i = 0; i < 7; i++) {
+    weekdays.push(weekDayFmtRu.format(date));
+    date.setDate(date.getDate() + 1);
+  }
+  return weekdays;
+};
+
+const weekdays = getWeekdays(props.locale);
+const dayChunks = chunkDays(props.year, props.month.month, props.month.days);
+const month = fmtMonth(new Date(props.year, props.month.month - 1));
+const monthHours = `${props.month.hours}/${Math.trunc(props.month.hours / 8)}`;
+const monthColor = getMonthColor(props.month.month);
 </script>
 
 <template>
   <table
-    class="border-separate rounded-md bg-gray-50 text-center shadow"
+    class="border-separate rounded-md bg-gray-50 text-center shadow "
     cellSpacing="0"
   >
     <thead>
       <tr>
         <th
           colspan="7"
-          :class="`${getMonthColor(month.month)} m-0 rounded-t-md px-2 py-1 text-center text-gray-700`"
+          :class="`${monthColor} m-0 rounded-t-md px-2 py-1 text-center text-gray-700`"
         >
           <div class="flex w-full flex-row justify-between">
-            <span>
-              {{ fmtMonth(new Date(year, month.month - 1)) }}
-            </span>
-            <span>{{ month.hours }}/{{ Math.trunc(month.hours / 8) }}</span>
+            <span>{{ month }}</span>
+            <span>{{ monthHours }}</span>
           </div>
         </th>
       </tr>
@@ -131,18 +134,18 @@ const getDayClass = (day: { day: number; hours: number }) => {
     <tbody>
       <tr>
         <td
-          v-for="(dayOfWeek, dayIdx) in getWeekdays(locale)"
+          v-for="(dayOfWeek, dayIdx) in weekdays"
           :key="dayIdx"
           class="border border-transparent px-1 py-0.5 text-gray-500"
         >
           {{ dayOfWeek }}
         </td>
       </tr>
-      <tr v-for="(week, weekIdx) in weeks" :key="weekIdx">
+      <tr v-for="(week, weekIdx) in dayChunks" :key="weekIdx">
         <td
           v-for="(day, dayIdx) in week"
-          :key="`${day}-${dayIdx}`"
-          :class="getDayClass(day || { day: 0, hours: 0 })"
+          :key="dayIdx"
+          :class="getDayClass(day)"
         >
           {{ day?.day || '\xa0' }}
         </td>

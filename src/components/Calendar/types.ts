@@ -11,3 +11,5 @@ export interface WorkingMonthHours {
   }[];
 }
 export type DayHours = { date: string; hours: number };
+// Тип для часов
+export type Hours = 0 | 8 | 7;
