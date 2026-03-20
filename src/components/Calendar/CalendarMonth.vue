@@ -125,9 +125,9 @@ const monthColor = getMonthColor(props.month.month) ;
           :class="`${monthColor} m-0 rounded-t-md px-2 py-1 text-center text-gray-700 dark:text-neutral-300  dark:bg-neutral-900`"
         >
           <div class="flex w-full flex-row justify-between items-center">
-            <div class="flex flex-row justify-center items-center gap-2">
+            <div class="flex flex-row justify-center items-center gap-1">
+              <div :class="monthColor + ` w-2 h-2 rounded-full`">&nbsp;</div>
               <span>{{ month }}</span>
-              <div :class="monthColor + ` w-4 h-4 rounded-full`">&nbsp;</div>
             </div>
             <span>{{ monthHours }}</span>
           </div>
