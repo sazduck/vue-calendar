@@ -58,21 +58,21 @@ const getMonthColor = (month: number) => {
 };
 
 const getDayClass = (day: Day | null) => {
-  if (day === null) {
-    return '';
-  }
   // Маппинг цветов в зависимости от часов
   const colorMap: Record<number, [string, string]> = {
-    8: ['text-gray-400', 'text-gray-900'], // [если прошло, если активно]
-    7: ['text-green-300', 'text-green-600'],
+    8: ['text-gray-400 dark:text-neutral-400', 'text-gray-900 dark:text-neutral-300'], // [если прошло, если активно]
+    7: ['text-green-300 dark:text-green-900', 'text-green-600 dark:text-green-300'],
   };
 
-  const [passedColor, activeColor] = colorMap[day.hours] || [
-    'text-red-300',
-    'text-red-600',
-  ];
-  const isDayPassed =
-    props.today > new Date(props.year, props.month.month - 1, day.day);
+  const [passedColor, activeColor] = day
+    ? colorMap[day.hours] ?? ['text-red-300 dark:text-red-800', 'text-red-600 dark:text-red-400',]
+    : ['', ''];
+
+  const isDayPassed = props.today > new Date(
+    props.year,
+    props.month.month - 1,
+    day?.day
+  );
 
   const isToday =
     props.today.getFullYear() === props.year &&
@@ -81,9 +81,9 @@ const getDayClass = (day: Day | null) => {
 
   const dayColor = isDayPassed ? passedColor : activeColor;
 
-  const baseClasses = 'border-1 px-2 py-0.5';
+  const baseClasses = 'border-1 px-2 py-0.5 rounded-sm';
   const colorClass = day ? dayColor : '';
-  const borderClass = isToday ? 'border-red-700' : 'border-transparent';
+  const borderClass = isToday ? 'border-red-700 dark:border-red-500' : 'border-transparent';
 
   return `${baseClasses} ${colorClass} ${borderClass}`;
 };
@@ -109,22 +109,26 @@ const weekdays = getWeekdays(props.locale);
 const dayChunks = chunkDays(props.year, props.month.month, props.month.days);
 const month = fmtMonth(new Date(props.year, props.month.month - 1));
 const monthHours = `${props.month.hours}/${Math.trunc(props.month.hours / 8)}`;
-const monthColor = getMonthColor(props.month.month);
+const monthColor = getMonthColor(props.month.month) ;
+
 </script>
 
 <template>
   <table
-    class="border-separate rounded-md bg-gray-50 text-center shadow "
+    class="border-separate rounded-md bg-neutral-50 dark:bg-neutral-900 text-center shadow "
     cellSpacing="0"
   >
     <thead>
       <tr>
         <th
           colspan="7"
-          :class="`${monthColor} m-0 rounded-t-md px-2 py-1 text-center text-gray-700`"
+          :class="`${monthColor} m-0 rounded-t-md px-2 py-1 text-center text-gray-700 dark:text-neutral-300  dark:bg-neutral-900`"
         >
-          <div class="flex w-full flex-row justify-between">
-            <span>{{ month }}</span>
+          <div class="flex w-full flex-row justify-between items-center">
+            <div class="flex flex-row justify-center items-center gap-2">
+              <span>{{ month }}</span>
+              <div :class="monthColor + ` w-4 h-4 rounded-full`">&nbsp;</div>
+            </div>
             <span>{{ monthHours }}</span>
           </div>
         </th>
@@ -136,7 +140,7 @@ const monthColor = getMonthColor(props.month.month);
         <td
           v-for="(dayOfWeek, dayIdx) in weekdays"
           :key="dayIdx"
-          class="border border-transparent px-1 py-0.5 text-gray-500"
+          class="border border-transparent px-1 py-0.5 text-gray-500 dark:text-neutral-400"
         >
           {{ dayOfWeek }}
         </td>
@@ -147,7 +151,7 @@ const monthColor = getMonthColor(props.month.month);
           :key="dayIdx"
           :class="getDayClass(day)"
         >
-          {{ day?.day || '\xa0' }}
+          {{ day?.day || '&nbsp;' }}
         </td>
       </tr>
     </tbody>
