@@ -60,12 +60,12 @@ const getMonthColor = (month: number) => {
 const getDayClass = (day: Day | null) => {
   // Маппинг цветов в зависимости от часов
   const colorMap: Record<number, [string, string]> = {
-    8: ['text-gray-400 dark:text-neutral-400', 'text-gray-900 dark:text-neutral-300'], // [если прошло, если активно]
-    7: ['text-green-300 dark:text-green-900', 'text-green-600 dark:text-green-300'],
+    8: ['text-gray-400 dark:text-neutral-300/60', 'text-gray-900 dark:text-neutral-300'], // [если прошло, если активно]
+    7: ['text-green-300 dark:text-green-300/60', 'text-green-600 dark:text-green-300'],
   };
 
   const [passedColor, activeColor] = day
-    ? colorMap[day.hours] ?? ['text-red-300 dark:text-red-800', 'text-red-600 dark:text-red-400',]
+    ? colorMap[day.hours] ?? ['text-red-300 dark:text-red-400/60', 'text-red-600 dark:text-red-400',]
     : ['', ''];
 
   const isDayPassed = props.today > new Date(
@@ -122,7 +122,7 @@ const monthColor = getMonthColor(props.month.month) ;
       <tr>
         <th
           colspan="7"
-          :class="`${monthColor} m-0 rounded-t-md px-2 py-1 text-center text-gray-700 dark:text-neutral-300  dark:bg-neutral-900`"
+          :class="`${monthColor} m-0 rounded-t-md px-2 py-1 text-center not-dark:text-gray-700 dark:text-neutral-300  dark:bg-neutral-900`"
         >
           <div class="flex w-full flex-row justify-between items-center">
             <div class="flex flex-row justify-center items-center gap-1">

@@ -31,7 +31,7 @@ today.setHours(0, 0, 0, 0);
     <div class="flex max-w-5xl flex-1 flex-wrap items-center justify-center">
       <div class="flex flex-col">
         <!-- Контейнер для заголовка -->
-        <div class="fixed top-0 left-0 z-50 flex w-full items-center justify-center py-2 lg:hidden">
+        <header class="fixed top-0 left-0 z-50 flex w-full items-center justify-center py-2 lg:hidden">
           
           <!-- 1. Слой ПОДЛОЖКИ (блюр + градиентная маска) -->
           <div 
@@ -43,7 +43,7 @@ today.setHours(0, 0, 0, 0);
             {{ year }}
           </div>
           
-        </div>
+        </header>
 
         <div class="mx-2 mt-16 flex flex-wrap items-start justify-center gap-3">
           <CalendarMonth
