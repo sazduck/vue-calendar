@@ -1,3 +1,12 @@
+export interface MonthData {
+  month: number;
+  hours: number;
+  days: {
+    day: number;
+    hours: number;
+  }[];
+}
+
 export interface WorkingHours {
   year: number;
   months: WorkingMonthHours[];
